@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { checkoutVisit } from "@/lib/actions/visitor.actions"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { CheckOutButton } from "@/components/CheckOutButton"
 import {
   Table,
   TableBody,
@@ -135,16 +135,7 @@ export default async function VisitLogsPage({
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {log.checkedOutAt === null && (
-                          <form
-                            action={async () => {
-                              "use server"
-                              await checkoutVisit(log.id)
-                            }}
-                          >
-                            <Button type="submit" size="sm" variant="outline">
-                              Check Out
-                            </Button>
-                          </form>
+                          <CheckOutButton visitLogId={log.id} />
                         )}
                         <a
                           href={`/visit-logs/${log.id}/pass`}
