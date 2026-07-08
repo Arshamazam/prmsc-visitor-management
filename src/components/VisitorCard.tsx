@@ -25,6 +25,12 @@ function getInitials(name: string) {
   return (first + last).toUpperCase()
 }
 
+function formatDate(iso: string) {
+  return new Intl.DateTimeFormat("en-PK", { dateStyle: "medium" }).format(
+    new Date(iso)
+  )
+}
+
 export function VisitorCard({ visitor, onSelect }: VisitorCardProps) {
   const lastVisit = visitor.visitLogs[0]
 
@@ -48,8 +54,7 @@ export function VisitorCard({ visitor, onSelect }: VisitorCardProps) {
           <p className="text-sm text-muted-foreground">{visitor.cnic}</p>
           {lastVisit && (
             <p className="text-xs text-muted-foreground">
-              Last visit:{" "}
-              {new Date(lastVisit.checkedInAt).toLocaleDateString()}
+              Last visit: {formatDate(lastVisit.checkedInAt)}
             </p>
           )}
         </div>
