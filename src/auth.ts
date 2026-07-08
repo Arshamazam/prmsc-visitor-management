@@ -7,6 +7,10 @@ import bcrypt from "bcryptjs"
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
+  // Required for self-hosted deployments behind a reverse proxy (e.g.
+  // Hostinger) — Vercel gets host trust for free, self-hosted needs it
+  // explicit or every request 500s with an UntrustedHost error.
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -36,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role
+        token.role = user.role
         token.id = user.id
       }
       return token
