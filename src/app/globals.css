@@ -128,3 +128,69 @@
     @apply font-sans;
   }
 }
+
+/* PRMSC brand tokens */
+:root {
+  --prmsc-green-900: #0d3b12;
+  --prmsc-green-800: #1b5e20;
+  --prmsc-green-700: #2e7d32;
+  --prmsc-green-100: #e8f5e9;
+  --prmsc-green-50: #f1f8e9;
+  --prmsc-blue: #0277bd;
+  --prmsc-blue-light: #e1f5fe;
+  --prmsc-gold: #f9a825;
+  --prmsc-gold-light: #fff8e1;
+  --text-dark: #1a1a2e;
+  --text-muted: #546e7a;
+  --prmsc-border: #e5e7eb;
+  --bg-page: #f0f4f8;
+}
+
+/* Pulsing dot animation for active visitors */
+@keyframes ping-slow {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+.pulse-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pulse-dot::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: ping-slow 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Smooth sidebar transitions */
+.sidebar-link {
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: #86efac;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Page background */
+.dashboard-main {
+  background: #f0f4f8;
+  min-height: 100vh;
+}

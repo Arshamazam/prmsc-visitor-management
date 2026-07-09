@@ -15,11 +15,13 @@ export async function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar role={session.user.role} />
-      <div className="flex flex-1 flex-col">
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar role={session.user.role} user={session.user} />
+      <div className="flex flex-1 flex-col overflow-hidden md:ml-60">
         <Topbar user={session.user} />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="mt-14 flex-1 overflow-y-auto bg-[#F0F4F8] p-6">
+          {children}
+        </main>
       </div>
     </div>
   )

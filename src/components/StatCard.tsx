@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 
@@ -6,40 +5,56 @@ type StatCardProps = {
   title: string
   value: number
   icon: LucideIcon
-  description?: string
-  highlight?: boolean
+  iconBg: string
+  iconColor: string
+  valueColor?: string
+  trend?: string
+  accentBorder?: string
+  pulse?: boolean
 }
 
 export function StatCard({
   title,
   value,
   icon: Icon,
-  description,
-  highlight,
+  iconBg,
+  iconColor,
+  valueColor = "#1A1A2E",
+  trend,
+  accentBorder,
+  pulse,
 }: StatCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <CardTitle className="text-sm font-normal text-muted-foreground">
-            {title}
-          </CardTitle>
-          <Icon className="size-4 text-muted-foreground" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p
-          className={cn(
-            "text-3xl font-semibold",
-            highlight && "text-green-600 dark:text-green-500"
-          )}
-        >
-          {value}
+    <div
+      className={cn(
+        "rounded-xl border bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]",
+        "transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+      )}
+      style={{
+        borderColor: "#E5E7EB",
+        borderLeft: accentBorder ? `3px solid ${accentBorder}` : undefined,
+      }}
+    >
+      <div className="flex items-start justify-between">
+        <p className="text-xs font-medium tracking-wide text-[#546E7A] uppercase">
+          {title}
         </p>
-        {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        )}
-      </CardContent>
-    </Card>
+        <div
+          className="flex size-10 items-center justify-center rounded-full"
+          style={{ background: iconBg }}
+        >
+          <Icon className="size-[18px]" style={{ color: iconColor }} />
+        </div>
+      </div>
+      <div className="mt-3 flex items-end justify-between">
+        <div className="flex items-center gap-2">
+          <p className="text-3xl font-bold" style={{ color: valueColor }}>
+            {value}
+          </p>
+          {pulse && <span className="pulse-dot size-2" />}
+        </div>
+        {trend && <p className="text-xs text-[#9CA3AF]">{trend}</p>}
+      </div>
+    </div>
   )
 }
