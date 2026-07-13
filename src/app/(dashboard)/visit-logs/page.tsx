@@ -17,7 +17,10 @@ export default async function VisitLogsPage({
 
   const { date } = await searchParams
 
-  const targetDate = date ? new Date(date) : new Date()
+  // Parse as local midnight directly — new Date("YYYY-MM-DD") parses as UTC
+  // midnight, which combined with setHours(0,0,0,0) below (local midnight)
+  // shifts the date back a full day in any timezone behind UTC.
+  const targetDate = date ? new Date(`${date}T00:00:00`) : new Date()
   targetDate.setHours(0, 0, 0, 0)
   const nextDay = new Date(targetDate)
   nextDay.setDate(targetDate.getDate() + 1)

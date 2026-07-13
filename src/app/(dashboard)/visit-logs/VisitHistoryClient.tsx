@@ -25,6 +25,8 @@ import {
   Printer,
   CalendarX2,
   UserPlus,
+  Download,
+  X,
 } from "lucide-react"
 
 type VisitLog = {
@@ -139,8 +141,22 @@ export function VisitHistoryClient({
 
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [showExportPanel, setShowExportPanel] = useState(false)
 
   const targetDate = new Date(targetDateIso)
+  const targetDateInput = toInputDate(targetDate)
+  // null = "not overridden by the user yet" — falls back to whichever day is
+  // currently being browsed, so the default follows date navigation without
+  // needing an effect to sync it (see https://react.dev/learn/you-might-not-need-an-effect).
+  const [exportDateFromOverride, setExportDateFromOverride] = useState<string | null>(null)
+  const [exportDateToOverride, setExportDateToOverride] = useState<string | null>(null)
+  const [exportTimeFrom, setExportTimeFrom] = useState("00:00")
+  const [exportTimeTo, setExportTimeTo] = useState("23:59")
+
+  const exportDateFrom = exportDateFromOverride ?? targetDateInput
+  const exportDateTo = exportDateToOverride ?? targetDateInput
+  const exportUrl = `/api/visit-logs/export?dateFrom=${exportDateFrom}&dateTo=${exportDateTo}&timeFrom=${exportTimeFrom}&timeTo=${exportTimeTo}`
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const isToday =
@@ -274,8 +290,93 @@ export function VisitHistoryClient({
               Today
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={() => setShowExportPanel((v) => !v)}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#374151] hover:bg-gray-50"
+          >
+            <Download size={14} />
+            Export Report
+          </button>
         </div>
       </div>
+
+      {/* Export report panel */}
+      {showExportPanel && (
+        <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold" style={{ color: "#1A1A2E" }}>
+              Export Visit Report (CSV)
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowExportPanel(false)}
+              className="text-gray-400 hover:text-gray-600"
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[#374151]">
+                Date From
+              </label>
+              <input
+                type="date"
+                value={exportDateFrom}
+                onChange={(e) => setExportDateFromOverride(e.target.value)}
+                className="h-9 rounded-lg border border-gray-200 px-2.5 text-sm outline-none focus:border-[#1B5E20]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[#374151]">
+                Date To
+              </label>
+              <input
+                type="date"
+                value={exportDateTo}
+                onChange={(e) => setExportDateToOverride(e.target.value)}
+                className="h-9 rounded-lg border border-gray-200 px-2.5 text-sm outline-none focus:border-[#1B5E20]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[#374151]">
+                Time From
+              </label>
+              <input
+                type="time"
+                value={exportTimeFrom}
+                onChange={(e) => setExportTimeFrom(e.target.value)}
+                className="h-9 rounded-lg border border-gray-200 px-2.5 text-sm outline-none focus:border-[#1B5E20]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[#374151]">
+                Time To
+              </label>
+              <input
+                type="time"
+                value={exportTimeTo}
+                onChange={(e) => setExportTimeTo(e.target.value)}
+                className="h-9 rounded-lg border border-gray-200 px-2.5 text-sm outline-none focus:border-[#1B5E20]"
+              />
+            </div>
+            <a
+              href={exportUrl}
+              className="flex h-9 items-center gap-1.5 rounded-lg px-4 text-sm font-semibold text-white transition-all hover:shadow-md"
+              style={{ background: "linear-gradient(135deg, #1B5E20, #2E7D32)" }}
+            >
+              <Download size={14} />
+              Download CSV
+            </a>
+          </div>
+          <p className="mt-2 text-xs" style={{ color: "#9CA3AF" }}>
+            Includes a Photo URL column for each visitor with a saved photo.
+          </p>
+        </div>
+      )}
 
       {/* Summary strip */}
       <div className="mb-5 flex flex-wrap gap-3">

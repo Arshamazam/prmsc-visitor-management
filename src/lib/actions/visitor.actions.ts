@@ -107,6 +107,50 @@ export async function createVisitLog(data: {
   }
 }
 
+// Fetch visit logs for CSV export within a date/time range — same
+// role-based scoping as the Visit History page (receptionists only see
+// their own logged visits; admins see everything).
+export async function getVisitLogsForExport(filters: {
+  dateFrom: string // YYYY-MM-DD
+  dateTo: string // YYYY-MM-DD
+  timeFrom?: string // HH:MM
+  timeTo?: string // HH:MM
+}) {
+  const session = await auth()
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const fromDateTime = new Date(`${filters.dateFrom}T${filters.timeFrom || "00:00"}:00`)
+  const toDateTime = new Date(`${filters.dateTo}T${filters.timeTo || "23:59"}:59`)
+
+  const logs = await prisma.visitLog.findMany({
+    where: {
+      checkedInAt: { gte: fromDateTime, lte: toDateTime },
+      ...(session.user.role === "RECEPTIONIST"
+        ? { loggedById: session.user.id }
+        : {}),
+    },
+    include: { visitor: true, department: true, loggedBy: true },
+    orderBy: { checkedInAt: "desc" },
+  })
+
+  return logs.map((log) => ({
+    id: log.id,
+    visitorName: log.visitor.name,
+    cnic: log.visitor.cnic,
+    phone: log.visitor.phone ?? "",
+    photoUrl: log.visitor.photoUrl ?? "",
+    purpose: log.purpose,
+    hostName: log.hostName,
+    department: log.department?.name ?? "",
+    receptionist: log.loggedBy.name,
+    checkedInAt: log.checkedInAt.toISOString(),
+    checkedOutAt: log.checkedOutAt?.toISOString() ?? "",
+    durationMinutes: log.checkedOutAt
+      ? Math.round((log.checkedOutAt.getTime() - log.checkedInAt.getTime()) / 60000)
+      : null,
+  }))
+}
+
 // Check out a visitor
 export async function checkoutVisit(visitLogId: string) {
   await prisma.visitLog.update({
