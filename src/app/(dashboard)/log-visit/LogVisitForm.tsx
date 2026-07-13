@@ -239,6 +239,7 @@ export function LogVisitForm({
 
   const [photoBase64, setPhotoBase64] = useState<string | null>(null)
   const [photoMimeType, setPhotoMimeType] = useState<string | null>(null)
+  const [cameraStreaming, setCameraStreaming] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   // Register form fields
@@ -700,7 +701,7 @@ export function LogVisitForm({
                 Capture or upload a photo for identification
               </p>
               <div className="rounded-xl border border-dashed border-gray-300 p-4">
-                {!photoBase64 && (
+                {!photoBase64 && !cameraStreaming && (
                   <div className="mb-3 flex flex-col items-center gap-1 text-gray-400">
                     <Camera size={32} />
                     <span className="text-xs">No photo yet</span>
@@ -716,6 +717,7 @@ export function LogVisitForm({
                     setPhotoBase64(null)
                     setPhotoMimeType(null)
                   }}
+                  onStreamingChange={setCameraStreaming}
                 />
               </div>
             </div>

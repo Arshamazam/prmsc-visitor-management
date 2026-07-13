@@ -7,12 +7,14 @@ type WebcamCaptureProps = {
   onCapture: (base64: string, mimeType: string) => void
   onClear: () => void
   captured: boolean
+  onStreamingChange?: (streaming: boolean) => void
 }
 
 export function WebcamCapture({
   onCapture,
   onClear,
   captured,
+  onStreamingChange,
 }: WebcamCaptureProps) {
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,10 +22,11 @@ export function WebcamCapture({
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
   const stopStream = () => {
-    const stream = videoRef.current?.srcObject as MediaStream | null
-    stream?.getTracks().forEach((t) => t.stop())
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+    streamRef.current = null
     if (videoRef.current) videoRef.current.srcObject = null
   }
 
@@ -33,15 +36,23 @@ export function WebcamCapture({
     }
   }, [])
 
+  // The <video> element only mounts once `streaming` is true, so the stream
+  // must be attached here (after the DOM commit) rather than right after
+  // getUserMedia() resolves — videoRef.current is still null at that point.
+  useEffect(() => {
+    if (streaming && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+    }
+    onStreamingChange?.(streaming)
+  }, [streaming, onStreamingChange])
+
   const handleOpenCamera = async () => {
     setError(null)
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
       })
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
+      streamRef.current = stream
       setStreaming(true)
     } catch {
       setError("Camera access denied. Please use file upload instead.")
