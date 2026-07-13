@@ -50,9 +50,11 @@ export async function createVisitor(data: {
       photoUrl = await uploadToS3(buffer, key, data.photoMimeType)
       photoKey = key
     } catch (err) {
-      // S3 may not be configured in local/dev environments — register the
-      // visitor without a photo rather than failing the whole registration.
-      console.error("S3 photo upload failed, continuing without photo:", err)
+      // S3 may not be configured in local/dev environments — fall back to
+      // persisting the photo directly as a data URL rather than losing it,
+      // so it still renders wherever photoUrl is used (e.g. the pass page).
+      console.error("S3 photo upload failed, storing photo inline:", err)
+      photoUrl = `data:${data.photoMimeType};base64,${data.photoBase64}`
     }
   }
 
