@@ -336,6 +336,14 @@ export function LogVisitForm({
   }
 
   const lastVisit = visitor?.visitLogs[0]
+  // Prefer the just-captured photo (e.g. S3 not configured yet, so the
+  // freshly registered visitor's persisted photoUrl may be null even
+  // though a photo was taken) over the server-persisted photoUrl.
+  const capturedPhotoUrl =
+    photoBase64 && photoMimeType
+      ? `data:${photoMimeType};base64,${photoBase64}`
+      : null
+  const displayPhotoUrl = capturedPhotoUrl ?? visitor?.photoUrl ?? null
   const selectedChip = PURPOSE_CHIPS.includes(purpose) ? purpose : null
   const selectedDeptName = departments.find(
     (d) => String(d.id) === departmentId
@@ -770,7 +778,7 @@ export function LogVisitForm({
 
             <Avatar
               name={visitor.name}
-              photoUrl={visitor.photoUrl}
+              photoUrl={displayPhotoUrl}
               size={80}
               radius={16}
             />
