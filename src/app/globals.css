@@ -194,3 +194,18 @@
   background: #f0f4f8;
   min-height: 100vh;
 }
+
+/* Step transitions for the Log Visit wizard */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.step-enter {
+  animation: slideIn 0.25s ease forwards;
+}

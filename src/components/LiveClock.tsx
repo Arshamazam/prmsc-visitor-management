@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react"
 
-export function LiveClock() {
+type LiveClockProps = {
+  mode?: "date" | "time"
+  className?: string
+}
+
+export function LiveClock({ mode = "date", className }: LiveClockProps) {
   const [date, setDate] = useState(new Date())
 
   useEffect(() => {
@@ -10,12 +15,22 @@ export function LiveClock() {
     return () => clearInterval(id)
   }, [])
 
-  const formatted = new Intl.DateTimeFormat("en-PK", {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date)
+  const formatted =
+    mode === "time"
+      ? new Intl.DateTimeFormat("en-PK", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(date)
+      : new Intl.DateTimeFormat("en-PK", {
+          weekday: "long",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }).format(date)
 
-  return <span className="text-sm" style={{ color: "#546E7A" }}>{formatted}</span>
+  return (
+    <span className={className ?? "text-sm"} style={className ? undefined : { color: "#546E7A" }}>
+      {formatted}
+    </span>
+  )
 }
